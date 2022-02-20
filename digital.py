@@ -9,7 +9,7 @@ from tabulate import tabulate
 #=================================================================================
 conn = db.connect('My_Database.db')
 c = conn.cursor()
-a_file = open("AU_DigitalVideo_MM.csv")
+a_file = open("data.csv")
 a_file.seek(408)
 rows =(csv.reader(a_file,delimiter=';'))
 #=================================================================================
