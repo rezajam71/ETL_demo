@@ -1,12 +1,20 @@
+from ctypes.wintypes import POINT
+from msilib import Table
+from pickletools import read_long1
 import sqlite3 as db
 import csv
-import tabulate
-
+from tabulate import tabulate
+#=================================================================================
+#==============================OPEN CSV FILE=====================================
+#=================================================================================
 conn = db.connect('My_Database.db')
 c = conn.cursor()
 a_file = open("AU_DigitalVideo_MM.csv")
 a_file.seek(408)
-rows = csv.reader(a_file,delimiter=';')
+rows =(csv.reader(a_file,delimiter=';'))
+#=================================================================================
+#=============================CREATE A TABLE IN DATABASE==========================
+#=================================================================================
 c.execute(''' CREATE TABLE IF NOT EXISTS Digital_Video(
             Week_Ending int,
             Brand txt,
@@ -28,9 +36,40 @@ c.execute(''' CREATE TABLE IF NOT EXISTS Digital_Video(
             Actual_Spending real,
             Spend_In_USD real
                 )''')
-#c.executemany("INSERT INTO Digital_Video VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows)
-c.execute("SELECT * FROM Digital_Video WHERE Actual_Spending='1,215'")
-print((c.fetchone()))
 
-#conn.commit()
+#=================================================================================
+#==============================Fill in the columns================================
+#=================================================================================
+def insert_rows(values):
+    with conn:
+        c.executemany("INSERT INTO Digital_Video VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", values)
+#=================================================================================
+#==============================Calling data=======================================
+#=================================================================================
+def call_by_column(title):
+    c.execute(f"SELECT {title} FROM Digital_Video")
+    print(tabulate(c.fetchall(),headers=[title],tablefmt='simple'))
+
+def call_all_data():
+    c.execute("SELECT *FROM Digital_Video")
+    print((c.fetchall()))
+#=================================================================================
+#==============================DELET data=========================================
+#=================================================================================
+def delet_values(title,values):
+    with conn:
+        c.execute(f"DELETE FROM Digital_Video WHERE {title}='{values}'")
+#=================================================================================
+#==============================UPDATE data========================================
+#=================================================================================
+def Update_values(title,Old_values,New_Value):
+    with conn:
+        c.execute(f"UPDATE Digital_Video SET {title}='{New_Value}' WHERE {title}='{Old_values}'")
+#=================================================================================
+#==============================Replace STR========================================
+#=================================================================================
+def replace_values(title,Old_Value,New_value):
+    with conn:
+        c.execute(f"UPDATE Digital_Video SET {title} = REPLACE({title},'{Old_Value}','{New_value}')")
 conn.close()
+
